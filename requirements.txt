@@ -1,0 +1,7 @@
+Flask
+Flask-SQLAlchemy
+bcrypt
+fpdf
+qrcode
+Pillow
+pandas
