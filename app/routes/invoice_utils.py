@@ -109,7 +109,7 @@ def generate_invoice_pdf(invoice_id, customer, payment, items, total,
         if pdf.get_y() > 230:
             pdf.add_page()
 
-        upi_id = "someshwarixb7672@oksbi"
+        upi_id = "demo_account@upi"
         payee_name = "Retail Wizard"
         payee_name_encoded = payee_name.replace(" ", "%20")
         qr_data = f"upi://pay?pa={upi_id}&pn={payee_name_encoded}&am={total:.2f}&cu=INR"
