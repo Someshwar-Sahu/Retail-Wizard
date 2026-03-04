@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">💳 Checkout</h2>
+
+<div class="grid-responsive">
+    
+    <div class="table-container" style="height: fit-content;">
+        <h4 style="margin-top: 0; color: #64748b;">Order Summary</h4>
+        <table class="styled-table" style="margin-bottom: 0; min-width: auto;">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart.values() %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ "%.2f"|format(item.price * item.quantity) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <hr style="border-top: 1px solid #e2e8f0; margin: 15px 0;">
+        
+        <label style="font-size: 0.9rem; font-weight: 600; color: #475569;">Have a Coupon?</label>
+        
+        <div id="couponInputContainer" style="display: flex; gap: 10px; margin-bottom: 5px;">
+            <input type="text" id="couponInput" placeholder="Enter Code" style="margin: 0; text-transform: uppercase;">
+            <button type="button" onclick="applyCoupon()" class="btn-primary" style="padding: 10px 20px; background: #334155;">Apply</button>
+        </div>
+        <p id="couponMsg" style="font-size: 0.85rem; margin: 0 0 15px 0; min-height: 20px;"></p> 
+
+        <div style="font-size: 1rem; color: #64748b; display: flex; justify-content: space-between;">
+            <span>Subtotal:</span>
+            <span>₹{{ "%.2f"|format(total) }}</span>
+        </div>
+        
+        <div style="font-size: 1rem; color: #166534; display: flex; justify-content: space-between; margin-top: 5px; display: none;" id="discountRow">
+            <span>Discount:</span>
+            <span>- ₹<span id="discountVal">0.00</span></span>
+        </div> 
+
+        <div style="font-size: 1rem; color: #1e3a8a; display: flex; justify-content: space-between; margin-top: 5px; display: none;" id="deliveryRow">
+            <span>Delivery Fee:</span>
+            <span>+ ₹<span id="deliveryValDisplay">0.00</span></span>
+        </div> 
+
+        <hr style="border-top: 1px dashed #e2e8f0; margin: 10px 0;">
+
+        <div style="display: flex; justify-content: space-between; font-size: 1.4rem; font-weight: 700;">
+            <span>Total to Pay:</span>
+            <span style="color: var(--primary-blue);">₹<span id="finalTotalDisplay">{{ "%.2f"|format(total) }}</span></span>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <h4 style="margin-top: 0; color: #64748b;">Order & Payment Details</h4>
+        
+        <form method="post" id="checkoutForm">
+            <input type="hidden" name="discount_applied" id="hiddenDiscount" value="0">
+            <input type="hidden" name="coupon_code" id="hiddenCoupon" value=""> 
+
+            <label style="font-weight: 600; color: #334155;">Customer Name</label>
+            <input name="customer" placeholder="Enter name" required style="margin-bottom: 15px;">
+
+            <label style="font-weight: 600; color: #334155;">Order Type</label>
+            <select name="delivery_pincode" id="deliverySelect" onchange="handleDeliveryChange()" style="margin-bottom: 15px; padding: 12px; width: 100%;">
+                <option value="" data-fee="0">🏬 In-Store Pickup (₹0.00)</option>
+                {% for loc in delivery_locations %}
+                <option value="{{ loc.pincode }}" data-fee="{{ loc.delivery_fee }}">🚚 Delivery to {{ loc.pincode }} (+₹{{ "%.2f"|format(loc.delivery_fee) }})</option>
+                {% endfor %}
+            </select>
+
+            <div id="addressBox" style="display:none; margin-bottom: 15px;">
+                <label style="font-weight: 600; color: #334155;">Delivery Address <span style="color:red;">*</span></label>
+                <textarea name="delivery_address" id="deliveryAddress" placeholder="Enter full address details..." rows="3" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;"></textarea>
+            </div>
+
+            <label style="font-weight: 600; color: #334155;">Payment Method</label>
+            <select name="payment" id="paymentMode" onchange="togglePayment()" required 
+                    style="margin-bottom: 20px; padding: 12px; width: 100%;">
+                <option value="">-- Select Mode --</option>
+                <option value="Cash">💵 Cash</option>
+                <option value="UPI">📱 UPI (QR Code)</option> 
+                <option value="Card">💳 Credit/Debit Card</option>
+            </select>
+
+            <div id="cashBox" style="display:none; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
+                <label>Amount Received (₹)</label>
+                <input type="number" name="amount_received" id="cashReceived" placeholder="0.00" oninput="calcChange()">
+                <p style="margin: 10px 0 0; font-weight: 600; color: #059669; font-size: 1.1rem;">
+                    Change: ₹<span id="changeAmount">0.00</span>
+                </p>
+            </div>
+
+            <div id="cardBox" style="display:none; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
+                <label>Card Last 4 Digits</label>
+                <input type="text" name="card_number" maxlength="4" placeholder="XXXX">
+            </div>
+
+            <div id="upiBox" style="display:none; text-align: center; padding: 20px; background: #f0fdf4; border: 1px dashed #16a34a; border-radius: 8px; margin-bottom: 15px;">
+                <p style="margin: 0; color: #166534; font-weight: 600;">QR Code will be generated on invoice.</p>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px; padding: 15px; font-size: 1.1rem;">
+                Confirm Order & Print 🖨️
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let baseSubtotal = {{ total }};
+    let appliedDiscount = 0;
+    let currentDeliveryFee = 0;
+
+    function updateCalculations() {
+        let finalTotal = baseSubtotal - appliedDiscount + currentDeliveryFee;
+        if(finalTotal < 0) finalTotal = 0;
+        
+        document.getElementById("finalTotalDisplay").innerText = finalTotal.toFixed(2);
+        calcChange(); 
+    }
+
+    function handleDeliveryChange() {
+        let select = document.getElementById("deliverySelect");
+        let selectedOption = select.options[select.selectedIndex];
+        
+        currentDeliveryFee = parseFloat(selectedOption.getAttribute("data-fee"));
+        
+        let addressBox = document.getElementById("addressBox");
+        let addressInput = document.getElementById("deliveryAddress");
+        let deliveryRow = document.getElementById("deliveryRow");
+        
+        if (currentDeliveryFee > 0) {
+            addressBox.style.display = "block";
+            addressInput.required = true;
+            deliveryRow.style.display = "flex";
+            document.getElementById("deliveryValDisplay").innerText = currentDeliveryFee.toFixed(2);
+        } else {
+            addressBox.style.display = "none";
+            addressInput.required = false;
+            deliveryRow.style.display = "none";
+        }
+        
+        updateCalculations();
+    }
+
+    function applyCoupon() {
+        const code = document.getElementById("couponInput").value;
+        const msg = document.getElementById("couponMsg");
+
+        if(!code) {
+            msg.style.color = "red";
+            msg.innerText = "Please enter a code.";
+            return;
+        }
+
+        fetch("{{ url_for('auth.validate_coupon') }}", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ code: code, total: baseSubtotal }) 
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.valid) {
+                msg.style.color = "green";
+                msg.innerText = data.message;
+                document.getElementById("couponInputContainer").style.display = "none";
+                appliedDiscount = data.discount_amount;
+                
+                document.getElementById("discountRow").style.display = "flex";
+                document.getElementById("discountVal").innerText = appliedDiscount.toFixed(2);
+                document.getElementById("hiddenDiscount").value = appliedDiscount;
+                document.getElementById("hiddenCoupon").value = code;
+                
+                updateCalculations();
+            } else {
+                msg.style.color = "red";
+                msg.innerText = data.message;
+            }
+        });
+    }
+
+    function togglePayment() {
+        let mode = document.getElementById("paymentMode").value;
+        document.getElementById("cashBox").style.display = (mode === "Cash") ? "block" : "none";
+        document.getElementById("cardBox").style.display = (mode === "Card") ? "block" : "none";
+        document.getElementById("upiBox").style.display = (mode === "UPI") ? "block" : "none";
+    }
+
+    function calcChange() {
+        let received = parseFloat(document.getElementById("cashReceived").value || 0);
+        let finalBill = parseFloat(document.getElementById("finalTotalDisplay").innerText);
+        
+        let change = received - finalBill;
+        document.getElementById("changeAmount").innerText = change >= 0 ? change.toFixed(2) : "0.00";
+    }
+</script>
+
+{% endblock %}

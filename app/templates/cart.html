@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">🧺 Your Cart</h2>
+
+{% if cart %}
+<div class="table-container">
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pid, item in cart.items() %}
+            <tr>
+                <td style="font-weight: 500;">{{ item.name }}</td>
+                <td>₹{{ item.price }}</td>
+                <td>
+                    <span style="background: #f1f5f9; padding: 5px 10px; border-radius: 4px; font-weight: bold;">
+                        {{ item.quantity }}
+                    </span>
+                </td>
+                <td style="color: var(--primary-blue); font-weight: 600;">₹{{ item.price * item.quantity }}</td>
+                <td>
+                    <a href="{{ url_for('cart.remove_from_cart', pid=pid) }}" 
+                       class="btn-icon" style="color: #ef4444;" title="Remove Item">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top: 30px; text-align: right; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    <h3 style="margin: 0; color: #475569;">Total Amount</h3>
+    <div style="font-size: 2.5rem; font-weight: 700; color: #1e293b; margin: 10px 0;">
+        ₹{{ total }}
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 15px;">
+        <a href="{{ url_for('products.products') }}" class="btn-primary" style="background: #64748b;">
+            ⬅ Continue Shopping
+        </a>
+        <a href="{{ url_for('checkout.checkout') }}" class="btn-primary" style="padding: 12px 30px; font-size: 1.1rem;">
+            Proceed to Checkout 💳
+        </a>
+    </div>
+</div>
+
+{% else %}
+<div style="text-align: center; padding: 50px; color: #94a3b8;">
+    <i class="fas fa-shopping-basket" style="font-size: 60px; margin-bottom: 20px;"></i>
+    <h3>Your cart is empty.</h3>
+    <a href="{{ url_for('products.products') }}" class="btn-primary" style="margin-top: 20px; display: inline-block;">
+        Start Selling
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">📦 Detailed Stock Report</h2>
+
+<div class="table-container">
+    <table class="styled-table" style="font-size: 0.85rem;">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Category</th>
+                {% if session.role == "admin" %}
+                <th>Purchase Price</th>
+                {% endif %}
+                <th>Selling (₹)</th>
+                <th>Margin (₹)</th>
+                <th>Current Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in data %}
+            <tr>
+                <td style="font-weight: 600; color: #334155;">{{ p.name }}</td>
+                <td>{{ p.category }}</td>
+
+                {% if session.role == "admin" %}
+                <td>₹{{ "%.2f"|format(p.purchasing_price) }}</td>
+                {% endif %}
+                
+                <td>₹{{ "%.2f"|format(p.selling_price) }}</td>
+
+                <td style="color: {{ '#16a34a' if p.profit_per_unit > 0 else '#dc2626' }}; font-weight: bold;">
+                    ₹{{ "%.2f"|format(p.profit_per_unit) }}
+                </td>
+
+                <td>
+                    {% if p.stock <= 5 %} 
+                        <span class="badge badge-danger">{{ p.stock }} (Low)</span>
+                    {% else %}
+                        <span class="badge badge-success">{{ p.stock }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: #94a3b8;">No stock data available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

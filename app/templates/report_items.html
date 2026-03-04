@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">📈 Item Sales Performance</h2>
+<div class="table-container">
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity Sold</th>
+                <th>Total Revenue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in data %}
+            <tr>
+                <td style="font-weight: 500;">{{ r[0] }}</td>
+                <td>{{ r[1] }} Units</td>
+                <td style="color: #166534; font-weight: bold;">₹{{ "%.2f"|format(r[2]) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="background: #e2e8f0; padding: 40px; min-height: 80vh; display: flex; justify-content: center;">
+
+    <div style="background: white; width: 100%; max-width: 700px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 4px; position: relative;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1e293b; padding-bottom: 20px; margin-bottom: 20px;">
+            <div>
+                <h1 style="margin: 0; color: #1e293b; font-size: 24px;">Retail Wizard</h1>
+                <p style="margin: 5px 0; color: #64748b;">Receipt / Tax Invoice</p>
+            </div>
+            <div style="text-align: right;">
+                <p style="margin: 0; font-weight: bold;">Invoice #{{ transaction.id }}</p>
+                <p style="margin: 5px 0; color: #64748b;">Date: {{ transaction.created_at.strftime('%Y-%m-%d %H:%M') }}</p> 
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+            <div style="flex: 1;">
+                <small style="color: #94a3b8; text-transform: uppercase; font-weight: bold;">Bill To</small>
+                <p style="margin: 5px 0; font-weight: 500;">{{ transaction.customer_name }}</p>
+            </div>
+            
+            {% if transaction.delivery_pincode %}
+            <div style="flex: 1; margin-left: 20px;">
+                <small style="color: #94a3b8; text-transform: uppercase; font-weight: bold;">Ship To</small>
+                <p style="margin: 5px 0; font-weight: 500; white-space: pre-wrap;">{{ transaction.delivery_address }}</p>
+                <p style="margin: 0; color: #64748b; font-size: 0.9rem;">PIN: {{ transaction.delivery_pincode }}</p>
+            </div>
+            {% endif %}
+
+            <div style="flex: 1; text-align: right;">
+                <small style="color: #94a3b8; text-transform: uppercase; font-weight: bold;">Payment Mode</small>
+                <p style="margin: 5px 0; font-weight: 500;">{{ transaction.payment_mode }}</p>
+                {% if transaction.card_last4 %}<small>Card: **** {{ transaction.card_last4 }}</small>{% endif %}
+            </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+            <thead style="border-bottom: 1px solid #e2e8f0;">
+                <tr>
+                    <th style="text-align: left; padding: 10px 0; color: #64748b;">Item</th>
+                    <th style="text-align: center; padding: 10px 0; color: #64748b;">Qty</th>
+                    <th style="text-align: right; padding: 10px 0; color: #64748b;">Price</th>
+                    <th style="text-align: right; padding: 10px 0; color: #64748b;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in transaction.stock_items %}
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 12px 0;">{{ item.product_name }}</td>
+                    <td style="text-align: center; padding: 12px 0;">{{ item.quantity }}</td>
+                    <td style="text-align: right; padding: 12px 0;">₹{{ "%.2f"|format(item.selling_price) }}</td>
+                    <td style="text-align: right; padding: 12px 0; font-weight: 500;">₹{{ "%.2f"|format(item.quantity * item.selling_price) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            
+            <div>
+                {% if 'UPI' in transaction.payment_mode|upper and qr_path %}
+                <div style="text-align: center; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px;">
+                    <img src="{{ url_for('static', filename=qr_path) }}?v={{ transaction.id }}" alt="UPI QR" width="120">
+                    <p style="margin: 5px 0 0; font-size: 0.8rem; color: #64748b;">Scan to Pay</p>
+                </div>
+                {% endif %} 
+            </div>
+
+            <div style="text-align: right; min-width: 250px;">
+                
+                {% if transaction.delivery_fee > 0 %}
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; color: #64748b;">
+                    <span>Subtotal:</span>
+                    <span>₹{{ "%.2f"|format(transaction.total - transaction.delivery_fee) }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #1e3a8a;">
+                    <span>Delivery Fee:</span>
+                    <span>+ ₹{{ "%.2f"|format(transaction.delivery_fee) }}</span>
+                </div>
+                {% endif %}
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.5rem; font-weight: bold; color: #1e293b; {% if transaction.delivery_fee %}border-top: 1px solid #e2e8f0; padding-top: 10px;{% endif %}">
+                    <span>Total:</span>
+                    <span>₹{{ "%.2f"|format(transaction.total) }}</span>
+                </div>
+                
+                {% if transaction.payment_mode == "Cash" %}
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; color: #64748b;">
+                    <p style="margin: 0;">Received: ₹{{ "%.2f"|format(transaction.amount_received) }}</p>
+                    <p style="margin: 5px 0;">Change: ₹{{ "%.2f"|format(transaction.change_returned) }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; text-align: center; display: flex; justify-content: center; gap: 15px;" class="no-print">
+            
+            <a href="{{ url_for('static', filename=pdf_path) }}" target="_blank" class="btn-primary" style="text-decoration: none;">
+                <i class="fas fa-file-pdf"></i> Download PDF
+            </a> 
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn-primary" style="background: white; color: #333; border: 1px solid #ccc; text-decoration: none;">
+                Start New Order
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

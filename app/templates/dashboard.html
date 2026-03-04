@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h2 style="margin: 0;">📊 Dashboard</h2>
+        <p style="color: #64748b; margin: 5px 0 0;">Overview of your retail business</p>
+    </div>
+</div>
+
+
+{% if session.role == "admin" %}
+<div class="stats-grid">
+
+    <div class="stat-card" style="border-left-color: #4f46e5;">
+        <div class="icon-box" style="color: #4f46e5; background: #eef2ff;">💰</div>
+        <div>
+            <h3>Today Sales</h3>
+            <p>₹{{ "%.2f"|format(today_sales) }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card" style="border-left-color: #2563eb;">
+        <div class="icon-box" style="color: #2563eb; background: #dbeafe;">📊</div>
+        <div>
+            <h3>Gross Revenue</h3>
+            <p>₹{{ "%.2f"|format(gross_revenue) }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card" style="border-left-color: #10b981;">
+        <div class="icon-box" style="color: #10b981; background: #d1fae5;">📈</div>
+        <div>
+            <h3>Gross Profit</h3>
+            <p>₹{{ "%.2f"|format(gross_profit) }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card" style="border-left-color: #f59e0b;">
+        <div class="icon-box" style="color: #f59e0b; background: #fef3c7;">📦</div>
+        <div>
+            <h3>Inventory Purchase</h3>
+            <p>₹{{ "%.2f"|format(inventory_expense) }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card" style="border-left-color: #ef4444;">
+        <div class="icon-box" style="color: #ef4444; background: #fee2e2;">💸</div>
+        <div>
+            <h3>Operational Expense</h3>
+            <p>₹{{ "%.2f"|format(operational_expense) }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card" style="border-left-color: #7c3aed;">
+        <div class="icon-box" style="color: #7c3aed; background: #ede9fe;">🏆</div>
+        <div>
+            <h3>Net Profit</h3>
+            <p>₹{{ "%.2f"|format(net_profit) }}</p>
+        </div>
+    </div>
+
+    <div class="stat-card" style="border-left-color: #ef4444;">
+        <div class="icon-box" style="color: #ef4444; background: #fee2e2;">⚠️</div>
+        <div>
+            <h3>Low Stock</h3>
+            <p>{{ low_stock }} items</p>
+        </div>
+    </div>
+
+</div>
+
+<div class="charts-container">
+    <div class="chart-box">
+        <h4>Weekly Sales Overview</h4>
+        <canvas id="salesChart"></canvas>
+    </div>
+    <div class="chart-box">
+        <h4>Stock Status</h4>
+        <canvas id="stockChart"></canvas>
+    </div>
+</div>
+{% endif %}
+
+<hr style="margin: 40px 0; border: 0; border-top: 1px solid #e2e8f0;">
+
+<h3 class="mb-3">⚡ Quick Actions</h3>
+<div class="stats-grid">
+    <a href="{{ url_for('products.products') }}" class="action-card">
+        <div class="icon">🛒</div>
+        <div class="text">Manage Products</div>
+    </a>
+
+    <a href="{{ url_for('cart.view_cart') }}" class="action-card">
+        <div class="icon">🧺</div>
+        <div class="text">View Cart</div>
+    </a>
+
+    <a href="{{ url_for('reports.reports') }}" class="action-card">
+        <div class="icon">📊</div>
+        <div class="text">View Reports</div>
+    </a>
+
+    <a href="{{ url_for('reports.expenses') }}" class="action-card">
+        <div class="icon">💰</div>
+        <div class="text">Expenses</div>
+    </a> 
+
+    {% if session.role == "admin" %}
+    <a href="{{ url_for('admin_access.create_user') }}" class="action-card admin-action">
+        <div class="icon">🧑‍💼</div>
+        <div class="text">Create User</div>
+    </a>
+    
+    <a href="{{ url_for('admin_access.admin_reset_password') }}" class="action-card admin-action">
+        <div class="icon">🔐</div>
+        <div class="text">Reset Passwords</div>
+    </a>
+    {% endif %} 
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{% if session.role == "admin" %}
+<script>
+    const lowStockCount = {{ low_stock if low_stock is not none else 0 }};
+    const totalProducts = {{ total_products if total_products is not none else 0 }};
+    
+    // Inject the lists directly from Flask
+    const chartLabels = {{ sales_dates | tojson }}; 
+    const chartData = {{ sales_values | tojson }};
+
+    // Calculate Healthy Stock (Real Data)
+    const healthyStock = Math.max(0, totalProducts - lowStockCount);
+
+    const ctxSales = document.getElementById('salesChart').getContext('2d');
+    new Chart(ctxSales, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: chartData,
+                borderColor: '#4f46e5',
+                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) { return ' ₹ ' + context.parsed.y; }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { borderDash: [5, 5] }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        callback: function(val, index) {
+                            const date = new Date(this.getLabelForValue(val));
+                            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const ctxStock = document.getElementById('stockChart').getContext('2d');
+    
+    const stockData = (lowStockCount === 0 && healthyStock === 0) 
+                      ? [0, 1] 
+                      : [healthyStock, lowStockCount];
+                      
+    const stockColors = (lowStockCount === 0 && healthyStock === 0)
+                        ? ['#e2e8f0', '#e2e8f0'] 
+                        : ['#10b981', '#ef4444'];
+
+    new Chart(ctxStock, {
+        type: 'doughnut',
+        data: {
+            labels: ['Healthy Stock', 'Low Stock'],
+            datasets: [{
+                data: stockData,
+                backgroundColor: stockColors,
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { usePointStyle: true, padding: 20 }
+                }
+            }
+        }
+    });
+</script>
+{% endif %} 
+
+{% endblock %}

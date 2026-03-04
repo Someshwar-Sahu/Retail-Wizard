@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="max-width: 800px; margin: 0 auto;">
+    <h2 class="mb-4">🧑‍💼 Manage Users</h2>
+    
+    <div class="grid-responsive" style="grid-template-columns: 1fr;">
+        
+        {% if pending_users %}
+        <div class="table-container" style="border: 2px solid #fbbf24; background: #fffbeb; margin-bottom: 30px;">
+            <h3 style="margin-top: 0; color: #b45309;">⏳ Pending Approvals</h3>
+            <table class="styled-table" style="margin-bottom: 0;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Requested Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in pending_users %}
+                    <tr>
+                        <td>{{ u.full_name }}</td>
+                        <td style="font-weight: bold;">{{ u.username }}</td>
+                        <td><span class="badge badge-warning">{{ u.role }}</span></td>
+                        <td>
+                            <a href="{{ url_for('admin_access.approve_user', uid=u.id) }}" class="btn-primary" style="background: #16a34a; padding: 5px 10px; text-decoration: none; font-size: 0.8rem; margin-right: 5px;">Approve</a>
+                            <a href="{{ url_for('admin_access.reject_user', uid=u.id) }}" class="btn-primary" style="background: #dc2626; padding: 5px 10px; text-decoration: none; font-size: 0.8rem;">Reject</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <div class="table-container">
+            <h3 style="margin-top: 0;">➕ Create New User (Auto-Approved)</h3>
+            <form method="post">
+                <label style="font-weight: 600;">Full Name</label>
+                <input name="fullname" placeholder="e.g. Rahul Sharma" required>
+                
+                <label style="font-weight: 600;">Username</label>
+                <input name="username" placeholder="e.g. rahul123" required>
+                
+                <label style="font-weight: 600;">Password</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+                <small style="display: block; color: #64748b; margin-top: -10px; margin-bottom: 15px;">Must be at least 8 characters, with 1 number and 1 symbol.</small>
+                
+                <label style="font-weight: 600;">Role</label>
+                <select name="role" style="padding: 12px; margin-bottom: 20px;">
+                    <option value="cashier">Cashier</option>
+                    <option value="admin">Admin</option>
+                </select>
+                
+                <button class="btn-primary" style="width: 100%;">Create User</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

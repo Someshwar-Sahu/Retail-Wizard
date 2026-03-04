@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">🤑 Profit / Loss Report</h2>
+<div class="table-container">
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Units Sold</th>
+                <th>Revenue</th>
+                <th>Cost</th>
+                <th>Profit / Loss</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in data %}
+            <tr>
+                <td style="font-weight: 500;">{{ p[0] }}</td>
+                <td>{{ p[1] }}</td>
+                <td>₹{{ "%.2f"|format(p[2]) }}</td>
+                <td>₹{{ "%.2f"|format(p[3]) }}</td>
+                <td>
+                    {% if p[4] < 0 %}
+                        <span class="badge badge-danger">₹{{ "%.2f"|format(p[4]) }}</span>
+                    {% else %}
+                        <span class="badge badge-success">+₹{{ "%.2f"|format(p[4]) }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

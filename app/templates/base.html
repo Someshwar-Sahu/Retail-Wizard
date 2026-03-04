@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title or "Retail Wizard" }}</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .close-btn {
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #overlay.active {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body class="{% if not session.get('username') %}auth-mode{% endif %}">
+
+    <div class="wrapper">
+
+        <div id="overlay"></div>
+
+        {% if session.get("username") %}
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0; font-weight:700;">Retail Wizard</h3>
+
+                <button type="button" id="sidebarDismiss" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li><a href="{{ url_for('dashboard.dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="{{ url_for('products.products') }}"><i class="fas fa-box-open"></i> Inventory</a></li>
+                <li><a href="{{ url_for('cart.view_cart') }}"><i class="fas fa-shopping-cart"></i> Point of Sale</a>
+                </li>
+                <li><a href="{{ url_for('reports.reports') }}"><i class="fas fa-chart-pie"></i> Analytics</a></li>
+                <li><a href="{{ url_for('reports.expenses') }}"><i class="fas fa-receipt"></i> Expenses</a></li>
+
+                {% if session.role == "admin" %}
+                <li style="border-top: 1px solid #334155; margin-top: 10px; padding-top: 10px;">
+                    <a href="{{ url_for('features.manage_coupons') }}"><i class="fas fa-ticket-alt"></i> Coupons</a>
+                    <a href="{{ url_for('features.manage_delivery') }}"><i class="fas fa-truck"></i> Manage Delivery</a>
+                    <a href="{{ url_for('admin_access.create_user') }}"><i class="fas fa-user-plus"></i> Users</a>
+                </li>
+                {% endif %}
+
+                {% if session.role != "admin" %}
+                <li>
+                    <a href="{{ url_for('login.change_password') }}">
+                        <i class="fas fa-key"></i> Change Password
+                    </a>
+                </li>
+                {% endif %}
+
+                <li><a href="{{ url_for('login.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+        {% endif %}
+
+        <div id="content">
+
+            {% if session.get("username") %}
+            <nav class="navbar-custom">
+                <button type="button" id="sidebarCollapse" class="btn-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="font-weight: 500; color: #64748b;">
+                        {{ session.username }}
+                        <span
+                            style="font-size: 0.8rem; background: #e2e8f0; padding: 2px 8px; border-radius: 12px; margin-left: 5px;">
+                            {{ session.role }}
+                        </span>
+                    </span>
+                </div>
+            </nav>
+            {% endif %}
+
+            <div class="container-fluid">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for msg in messages %}
+                <div
+                    style="background: #eff6ff; color: #1e40af; border: 1px solid #dbeafe; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    {{ msg }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    {% if session.get("username") %}
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const openBtn = document.getElementById('sidebarCollapse');
+        const closeBtn = document.getElementById('sidebarDismiss');
+        const overlay = document.getElementById('overlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active'); 
+        }
+
+        if (openBtn) {
+            openBtn.addEventListener('click', toggleSidebar);
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', toggleSidebar);
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        }
+    </script>
+    {% endif %}
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

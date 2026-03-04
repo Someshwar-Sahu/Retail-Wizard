@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">💳 Transaction History</h2>
+<div class="table-container">
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Payment</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in data %}
+            <tr>
+                <td>#{{ t[0] }}</td>
+                <td style="color: #64748b; font-size: 0.9rem;">{{ t[4] }}</td>
+                <td style="font-weight: 500;">{{ t[1] }}</td>
+                <td>
+                    <span style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">
+                        {{ t[3] }}
+                    </span>
+                </td>
+                <td style="font-weight: bold; color: var(--primary-blue);">₹{{ t[2] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

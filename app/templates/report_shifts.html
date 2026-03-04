@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">⏱ Shift Logs & Performance</h2>
+<div class="table-container">
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Login Time</th>
+                <th>Logout Time</th>
+                <th>Hours Worked</th>
+                <th>Bills Processed</th>
+                <th>Total Sales</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in data %}
+            <tr>
+                <td style="font-weight: 500; color: #334155;">{{ s[1] }}</td>
+                
+                <td>{{ s[2] }}</td>
+                
+                <td>{{ s[3] or 'Active' }}</td>
+                
+                <td>
+                    {% if s[4] %}
+                        {{ s[4] }} hrs
+                    {% else %}
+                        <span class="badge badge-success">Online</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ s[5] }}</td>
+
+                <td style="color: var(--primary-blue); font-weight: bold;">₹{{ "%.2f"|format(s[6]) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

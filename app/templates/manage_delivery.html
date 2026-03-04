@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">🚚 Delivery Zones Manager</h2>
+
+<div class="grid-responsive">
+    
+    <div class="table-container" style="height: fit-content; background: #eff6ff; border: 1px solid #bfdbfe;">
+        <h4 style="margin-top: 0; color: #1e3a8a;">➕ Add Serviceable PIN Code</h4>
+        
+        <form method="post">
+            <label style="font-weight: 600; color: #1e3a8a;">PIN Code</label>
+            <input name="pincode" placeholder="e.g. 382010" required>
+            
+            <label style="font-weight: 600; color: #1e3a8a;">Delivery Fee (₹)</label>
+            <input type="number" step="0.01" name="delivery_fee" placeholder="50.00" required>
+            
+            <button type="submit" class="btn-primary" style="background: #2563eb; width: 100%; margin-top: 10px;">Add Location</button>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <h3 style="margin-top: 0;">Active Delivery Zones</h3>
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>PIN Code</th>
+                    <th>Delivery Fee</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loc in locations %}
+                <tr>
+                    <td style="font-weight: bold; letter-spacing: 1px; color: #334155;">{{ loc.pincode }}</td>
+                    <td>
+                        <span class="badge badge-success" style="background: #dbeafe; color: #1e40af;">
+                            ₹{{ "%.2f"|format(loc.delivery_fee) }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('features.delete_delivery', did=loc.id) }}" class="btn-icon" style="color: #ef4444;" onclick="return confirm('Delete this PIN code from serviceable areas?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align: center; color: #94a3b8;">No active delivery zones found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

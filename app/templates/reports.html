@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">📊 Analytics & Reports</h2>
+
+<div class="stats-grid">
+    <a href="{{ url_for('reports.stock_report') }}" class="action-card">
+        <div class="icon" style="background: #dbeafe; color: #1e40af;">📦</div>
+        <div>
+            <div class="text">Stock Report</div>
+            <small style="color: #64748b;">Inventory levels & expiry</small>
+        </div>
+    </a>
+
+    <a href="{{ url_for('reports.transaction_report') }}" class="action-card">
+        <div class="icon" style="background: #e0e7ff; color: #3730a3;">💳</div>
+        <div>
+            <div class="text">Transaction History</div>
+            <small style="color: #64748b;">All sales logs</small>
+        </div>
+    </a>
+
+    <a href="{{ url_for('reports.profit_report') }}" class="action-card">
+        <div class="icon" style="background: #dcfce7; color: #166534;">🤑</div>
+        <div>
+            <div class="text">Profit & Loss</div>
+            <small style="color: #64748b;">Revenue vs Cost</small>
+        </div>
+    </a>
+
+    <a href="{{ url_for('reports.item_sales_report') }}" class="action-card">
+        <div class="icon" style="background: #f3e8ff; color: #6b21a8;">📈</div>
+        <div>
+            <div class="text">Item Sales</div>
+            <small style="color: #64748b;">Best selling products</small>
+        </div>
+    </a>
+
+    {% if session.role == "admin" %}
+    <a href="{{ url_for('admin_access.cashier_report') }}" class="action-card admin-action">
+        <div class="icon">🧑‍💼</div>
+        <div>
+            <div class="text">Cashier Performance</div>
+            <small style="color: #991b1b;">Sales by staff</small>
+        </div>
+    </a>
+
+    <a href="{{ url_for('admin_access.shift_report') }}" class="action-card admin-action">
+        <div class="icon">⏱</div>
+        <div>
+            <div class="text">Shift Logs</div>
+            <small style="color: #991b1b;">Login/Logout times</small>
+        </div>
+    </a>
+    {% endif %}
+</div>
+
+{% endblock %}

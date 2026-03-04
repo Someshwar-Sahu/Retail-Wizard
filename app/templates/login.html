@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div style="margin-bottom: 20px;">
+            <div style="font-size: 40px; margin-bottom: 10px;">🧙‍♂️</div>
+            <h2 style="margin: 0; color: #1e293b;">Retail Wizard</h2>
+            <p style="color: #64748b; margin-top: 5px;">Login to start your shift</p>
+        </div>
+
+        <form method="post">
+            <input name="username" placeholder="Username" required style="background: #f8fafc;">
+            <input type="password" name="password" placeholder="Password" required style="background: #f8fafc;">
+            
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 15px; font-size: 1rem;">
+                Login
+            </button>
+        </form>
+        
+        <div style="margin-top: 10px; font-size: 0.9rem;">
+            <a href="{{ url_for('login.register') }}" style="color: var(--primary-blue); text-decoration: none;">Create Account</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

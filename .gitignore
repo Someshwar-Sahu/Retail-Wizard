@@ -1,0 +1,17 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments (if you used one)
+venv/
+env/
+
+# Database files
+*.db
+*.sqlite3
+app.db
+
+# Uploaded/Generated files (Keep the folders, ignore the files inside)
+app/static/bills/pdfs/*.pdf
+app/static/bills/qrcodes/*.png
