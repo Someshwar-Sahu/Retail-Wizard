@@ -62,10 +62,13 @@ The application is built on a robust relational SQLite database with the followi
 
 ## 📸 Screenshots
 
-*(Add your screenshots here by dragging and dropping images into your GitHub editor!)*
 * **Admin Dashboard & Analytics**
+* <img width="1886" height="933" alt="Screenshot 2026-03-05 024648" src="https://github.com/user-attachments/assets/e45ef39c-0112-4ae3-b28d-f8142dc22c8c" />
 * **POS Checkout Interface**
+* <img width="1910" height="934" alt="Screenshot 2026-03-05 025801" src="https://github.com/user-attachments/assets/7b9172ec-fe47-4d43-be92-17c37d2be84a" />
 * **Generated PDF Invoice**
+* <img width="998" height="875" alt="Screenshot 2026-03-05 025823" src="https://github.com/user-attachments/assets/984c960c-7013-4472-86fe-0259e38f643c" />
+
 
 ---
 
