@@ -74,21 +74,20 @@ The application is built on a robust relational SQLite database with the followi
    ```bash
    git clone [https://github.com/YOUR_USERNAME/retail-wizard.git](https://github.com/YOUR_USERNAME/retail-wizard.git)
    cd retail-wizard
-  ```
+   ```
 2. **Set up a virtual environment (Recommended):**
-```Bash
-python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activat
-```
+   ```Bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use: venv\Scripts\activat
+   ```
 3. **Install dependencies:**
-```Bash
-pip install -r requirements.txt
-```
+   ```Bash
+   pip install -r requirements.txt
+   ```
 4. **Initialize the application:**
-
-```Bash
-python run.py
-```
+   ```Bash
+   python run.py
+   ```
 *Note:* The SQLite database (app.db) will automatically generate upon the first run.
 
 5. **First-Time Setup:**
@@ -103,13 +102,13 @@ Because Retail Wizard features a strict Role-Based Access Control (RBAC) system,
 You can easily expose the local Flask server to the internet using [Ngrok](https://ngrok.com/):
 
 1. **Start your local Flask application:**
-```bash
-python run.py
-```
+   ```bash
+   python run.py
+   ```
 2. **In a separate terminal window, start Ngrok on port 5000:**
-```Bash
-ngrok http 5000
-```
+   ```Bash
+   ngrok http 5000
+   ```
 3. **Copy the Forwarding URL provided by Ngrok (e.g., https://random-string.ngrok-free.app).**
 4. **Open that URL on your smartphone.**
 
